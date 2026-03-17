@@ -44,7 +44,7 @@ const Navbar = () => {
                 {username ? `Hi, ${username}` : "Signed In"}
               </span>
 
-              <button className="btn" onClick={handleAuthClick}>
+              <button className="btn btn--primary" onClick={handleAuthClick}>
                 Logout
               </button>
             </>
