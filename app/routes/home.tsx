@@ -1,11 +1,12 @@
 import type { Route } from "./+types/home";
-
 import Navbar from "../../components/navbar";
-
 import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
+import Upload from "../../components/upload";
 import Button from "../../components/ui/button";
+import { useNavigate } from "react-router";
 
 export function meta({ }: Route.MetaArgs) {
+  
   return [
     { title: "Roomify - Build beautiful spaces" },
     { name: "description", content: "AI-first design environment for architectural projects." },
@@ -13,6 +14,12 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
+  const handleUploadComplete = async(base64image: string) => {
+    const newId = Date.now().toString();
+    navigate(`/visualizer/${newId}`);
+    return true;
+  }
   return (
     <div className="home">
       <Navbar />
@@ -50,11 +57,7 @@ export default function Home() {
               <p>Supports JPG, PNG, formats up to 10MB</p>
             </div>
             
-            <div className="flex justify-center mt-2">
-               <p className="text-sm font-medium text-zinc-600 hover:text-black cursor-pointer transition-colors">
-                 Upload images
-               </p>
-            </div>
+            <Upload onComplete={handleUploadComplete}/>
           </div>
         </div>
       </section>
