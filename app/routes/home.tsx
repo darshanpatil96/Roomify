@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
 import Upload from "../../components/upload";
 import Button from "../../components/ui/button";
 import { useNavigate } from "react-router";
+import { MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
 
 export function meta({ }: Route.MetaArgs) {
   
@@ -54,7 +55,7 @@ export default function Home() {
                 <Layers className="icon" />
               </div>
               <h3>Upload your floor plan</h3>
-              <p>Supports JPG, PNG, formats up to 10MB</p>
+              <p>Supports JPG, PNG, formats up to {MAX_UPLOAD_SIZE_MB}MB</p>
             </div>
             
             <Upload onComplete={handleUploadComplete}/>
