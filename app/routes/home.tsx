@@ -1,18 +1,37 @@
 import type { Route } from "./+types/home";
-
 import Navbar from "../../components/navbar";
-
 import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
+import Upload from "../../components/upload";
 import Button from "../../components/ui/button";
+import { useNavigate } from "react-router";
 
+/**
+ * Provide the route metadata for the page head, including title and description.
+ *
+ * @returns An array of meta entries: a `title` object and a `description` meta tag with content describing the app.
+ */
 export function meta({ }: Route.MetaArgs) {
+  
   return [
     { title: "Roomify - Build beautiful spaces" },
     { name: "description", content: "AI-first design environment for architectural projects." },
   ];
 }
 
+/**
+ * Render the Home page containing the hero, upload area, and projects listing.
+ *
+ * The component wires an upload completion handler that generates a timestamp-based id and navigates to `/visualizer/{id}` when an upload finishes.
+ *
+ * @returns The React element for the Home route, including navbar, hero section, upload card, and projects grid.
+ */
 export default function Home() {
+  const navigate = useNavigate();
+  const handleUploadComplete = async(base64image: string) => {
+    const newId = Date.now().toString();
+    navigate(`/visualizer/${newId}`);
+    return true;
+  }
   return (
     <div className="home">
       <Navbar />
@@ -50,11 +69,7 @@ export default function Home() {
               <p>Supports JPG, PNG, formats up to 10MB</p>
             </div>
             
-            <div className="flex justify-center mt-2">
-               <p className="text-sm font-medium text-zinc-600 hover:text-black cursor-pointer transition-colors">
-                 Upload images
-               </p>
-            </div>
+            <Upload onComplete={handleUploadComplete}/>
           </div>
         </div>
       </section>
