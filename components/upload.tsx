@@ -1,7 +1,14 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {useOutletContext} from "react-router";
 import {CheckCircle2, ImageIcon, UploadIcon} from "lucide-react";
-import {PROGRESS_INCREMENT, REDIRECT_DELAY_MS, PROGRESS_INTERVAL_MS} from "../lib/constants";
+import {
+    PROGRESS_INCREMENT,
+    REDIRECT_DELAY_MS,
+    PROGRESS_INTERVAL_MS,
+    MAX_UPLOAD_SIZE,
+    MAX_UPLOAD_SIZE_MB,
+    ALLOWED_IMAGE_TYPES
+} from "../lib/constants";
 
 interface UploadProps {
     onComplete?: (base64Data: string) => void;
@@ -13,8 +20,9 @@ const Upload = ({ onComplete }: UploadProps) => {
     const [progress, setProgress] = useState(0);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const { isSignedIn } = useOutletContext<AuthContext>();
+    const { isSignIn } = useOutletContext<AuthContext>();
 
     useEffect(() => {
         return () => {
@@ -30,7 +38,17 @@ const Upload = ({ onComplete }: UploadProps) => {
     }, []);
 
     const processFile = useCallback((file: File) => {
-        if (!isSignedIn) return;
+        if (!isSignIn) return;
+
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            console.error(`Unsupported file type: ${file.type}. Please upload a PNG or JPG image.`);
+            return;
+        }
+
+        if (file.size > MAX_UPLOAD_SIZE) {
+            console.error(`File too large: ${(file.size / (1024 * 1024)).toFixed(1)} MB. Maximum allowed is ${MAX_UPLOAD_SIZE_MB} MB.`);
+            return;
+        }
 
         setFile(file);
         setProgress(0);
@@ -62,11 +80,11 @@ const Upload = ({ onComplete }: UploadProps) => {
             }, PROGRESS_INTERVAL_MS);
         };
         reader.readAsDataURL(file);
-    }, [isSignedIn, onComplete]);
+    }, [isSignIn, onComplete]);
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
-        if (!isSignedIn) return;
+        if (!isSignIn) return;
         setIsDragging(true);
     };
 
@@ -78,17 +96,16 @@ const Upload = ({ onComplete }: UploadProps) => {
         e.preventDefault();
         setIsDragging(false);
 
-        if (!isSignedIn) return;
+        if (!isSignIn) return;
 
         const droppedFile = e.dataTransfer.files[0];
-        const allowedTypes = ['image/jpeg', 'image/png'];
-        if (droppedFile && allowedTypes.includes(droppedFile.type)) {
+        if (droppedFile) {
             processFile(droppedFile);
         }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!isSignedIn) return;
+        if (!isSignIn) return;
 
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
@@ -104,13 +121,15 @@ const Upload = ({ onComplete }: UploadProps) => {
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
+                    onClick={() => inputRef.current?.click()}
                 >
                     <input
                         type="file"
-                        className="drop-input"
-                        accept=".jpg,.jpeg,.png,.webp"
-                        disabled={!isSignedIn}
+                        className="hidden"
+                        accept={ALLOWED_IMAGE_TYPES.map(t => t.replace("image/", ".")).join(",")}
+                        disabled={!isSignIn}
                         onChange={handleChange}
+                        ref={inputRef}
                     />
 
                     <div className="drop-content">
@@ -118,11 +137,11 @@ const Upload = ({ onComplete }: UploadProps) => {
                             <UploadIcon size={20} />
                         </div>
                         <p>
-                            {isSignedIn ? (
+                            {isSignIn ? (
                                 "Click to upload or just drag and drop"
                             ): ("Sign in or sign up with Puter to upload")}
                         </p>
-                        <p className="help">Maximum file size 50 MB.</p>
+                        <p className="help">Max file size {MAX_UPLOAD_SIZE_MB} MB. PNG, JPG only.</p>
                     </div>
                 </div>
             ) : (
