@@ -73,8 +73,8 @@ interface UploadProps {
 }
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: "primary" | "secondary" | "ghost" | "outline";
-    size?: "sm" | "md" | "lg";
+    variant?: "primary" | "secondary" | "danger" | "ghost" | "outline" | string;
+    size?: "sm" | "md" | "lg" | string;
     fullWidth?: boolean;
 }
 
