@@ -34,7 +34,7 @@ export default function Home() {
       console.error("Failed to save project");
       return false;
     } 
-    setProjects((prev)=>[newItem,...prev]);      
+    setProjects((prev) => [save, ...prev]);
    
     navigate(`/visualizer/${newId}`, {
       state: {
